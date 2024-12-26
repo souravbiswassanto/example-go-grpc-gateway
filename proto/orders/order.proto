@@ -3,6 +3,7 @@ syntax = "proto3";
 option go_package = "github.com/souravbiswassanto/example-go-grpc-gateway/protogen/golang/orders";
 
 import "product/product.proto";
+import "google/api/annotations.proto";
 import "google/api/date.proto";
 
 message Order {
@@ -19,6 +20,40 @@ message PayloadWithSingleOrder {
   Order order = 1;
 }
 
+message PayloadWithOrderID {
+  uint64 order_id = 1;
+}
+
+message PayloadWithAllOrders {
+  repeated Order order = 1;
+}
+
 service Orders {
-  rpc AddOrder(PayloadWithSingleOrder) returns (Empty) {}
+  rpc AddOrder(PayloadWithSingleOrder) returns (Empty) {
+    option (google.api.http) = {
+      post: "/v0/orders",
+      body: "*"
+    };
+  }
+  rpc GetOrder(PayloadWithOrderID) returns (PayloadWithSingleOrder) {
+    option (google.api.http) = {
+      get: "/v0/orders/{order_id}"
+    };
+  }
+  rpc GetAllOrder(Empty) returns (PayloadWithAllOrders) {
+    option (google.api.http) = {
+      get: "/v0/orders"
+    };
+  }
+  rpc UpdateOrder(PayloadWithSingleOrder) returns (Empty) {
+    option (google.api.http) = {
+      put: "/v0/orders",
+      body: "*"
+    };
+  }
+  rpc DeleteOrder(PayloadWithOrderID) returns (Empty) {
+    option (google.api.http) = {
+      delete: "/v0/orders/{order_id}"
+    };
+  }
 }
